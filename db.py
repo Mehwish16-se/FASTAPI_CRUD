@@ -20,7 +20,7 @@ def create_table():
 
     conn.commit()
     conn.close()
-create_table()
+
 def seed_tasks():
     conn = get_connection()
     cursor = conn.cursor()
@@ -48,5 +48,45 @@ def seed_tasks():
 
     conn.close()
 
-seed_tasks()
+
+def get_all_tasks():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM tasks")
+
+    rows = cursor.fetchall()
+
+    conn.close()
+
+    return [
+        {
+            "id": row[0],
+            "title": row[1],
+            "done": bool(row[2])
+        }
+        for row in rows
+    ]
+def get_task_by_id(task_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM tasks WHERE id = ?",
+        (task_id,)
+    )
+
+    row = cursor.fetchone()
+
+    conn.close()
+
+    if row is None:
+        return None
+
+    return {
+        "id": row[0],
+        "title": row[1],
+        "done": bool(row[2])
+    }
 create_table()
+seed_tasks()
