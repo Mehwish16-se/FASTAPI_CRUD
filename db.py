@@ -104,6 +104,22 @@ def update_task(task_id, title, done):
     conn.close()
 
     return updated
+def delete_task(task_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM tasks WHERE id = ?",
+        (task_id,)
+    )
+
+    conn.commit()
+
+    deleted = cursor.rowcount
+
+    conn.close()
+
+    return deleted
 
 def create_task(title, done):
     conn = get_connection()

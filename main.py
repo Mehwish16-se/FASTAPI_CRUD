@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from db import get_all_tasks, get_task_by_id, create_task, update_task
+from db import get_all_tasks, get_task_by_id, create_task, update_task, delete_task
 
 app = FastAPI()
 
@@ -63,23 +63,19 @@ def update_task_endpoint(id: int, task: TaskUpdate):
             status_code=404,
             detail="Task not found"
         )
-
     return get_task_by_id(id)
 
 
 # DELETE TASK
 @app.delete("/tasks/{id}", status_code=204)
-def delete_task(id: int):
+def delete_task_endpoint(id: int):
 
-    for task in tasks:
+    deleted = delete_task(id)
 
-        if task["id"] == id:
+    if deleted == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
 
-            tasks.remove(task)
-
-            return
-
-    raise HTTPException(
-        status_code=404,
-        detail="Task not found"
-    )
+    return
