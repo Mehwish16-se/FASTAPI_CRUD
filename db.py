@@ -88,6 +88,22 @@ def get_task_by_id(task_id):
         "title": row[1],
         "done": bool(row[2])
     }
+def update_task(task_id, title, done):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "UPDATE tasks SET title = ?, done = ? WHERE id = ?",
+        (title, done, task_id)
+    )
+
+    conn.commit()
+
+    updated = cursor.rowcount
+
+    conn.close()
+
+    return updated
 
 def create_task(title, done):
     conn = get_connection()
