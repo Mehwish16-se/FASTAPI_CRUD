@@ -1,55 +1,41 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from db import get_all_tasks, get_task_by_id
+
+from db import get_all_tasks, get_task_by_id, create_task
 
 app = FastAPI()
 
-tasks = [
-    {
-        "id": 1,
-        "title": "Study FastAPI",
-        "done": False
-    },
-    {
-        "id": 2,
-        "title": "practise fastapi",
-        "done": True
-    },
-    {
-        "id": 3,
-        "title": "complete assigmant",
-        "done": False
-    }
-]
 
 class TaskCreate(BaseModel):
     title: str
+    done: bool = False
+
 
 class TaskUpdate(BaseModel):
     title: str
     done: bool
+
+
 # GET ALL TASKS
 @app.get("/tasks")
 def get_tasks():
-    return get_all_tasks()   
-@app.post("/tasks", status_code=201)
-def create_task(task: TaskCreate):
+    return get_all_tasks()
 
-    if task.title.strip() == "":
-        raise HTTPException(
-            status_code=400,
-            detail="Title cannot be empty"
-        )
 
-    new_task = {
-        "id": len(tasks) + 1,
+# CREATE NEW TASK
+@app.post("/tasks")
+def add_task(task: TaskCreate):
+
+    task_id = create_task(task.title, int(task.done))
+
+    return {
+        "id": task_id,
         "title": task.title,
-        "done": False
+        "done": task.done
     }
 
-    tasks.append(new_task)
 
-    return new_task
+# GET TASK BY ID
 @app.get("/tasks/{id}")
 def get_task(id: int):
 
@@ -63,12 +49,8 @@ def get_task(id: int):
 
     return task
 
-    raise HTTPException(
-        status_code=404,
-        detail="Task not found"
-    )
 
-    
+# DELETE TASK
 @app.delete("/tasks/{id}", status_code=204)
 def delete_task(id: int):
 
